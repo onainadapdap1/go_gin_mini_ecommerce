@@ -2,6 +2,7 @@ package routers
 
 import (
 	"go_gin_mini_ecommerce/handler"
+	"go_gin_mini_ecommerce/middleware"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,11 @@ func RunAPI(address string) error {
 	{
 		userRoutes.POST("/register", userHandler.AddUser)
 		userRoutes.POST("/signin", userHandler.SignInUser)
+	}
+
+	userProtectedRoutes := apiRoutes.Group("/users", middleware.AuthorizeJWT())
+	{
+		userProtectedRoutes.GET("/:id", userHandler.GetUser)
 	}
 
 	return r.Run(address)

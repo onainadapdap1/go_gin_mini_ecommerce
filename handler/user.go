@@ -58,6 +58,7 @@ func (h *userHandler) GetUser(c *gin.Context) {
 		return
 	}
 
+	user.Password = ""
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"user": user,
