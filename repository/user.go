@@ -13,7 +13,7 @@ import (
 type UserRepository interface {
 	GetUser(int) (models.User, error)
 	AddUser(models.User) (models.User, error)
-	// GetByEmail(string) (models.User, error)
+	GetByEmail(string) (models.User, error)
 	// GetAllUser() ([]models.User, error)
 	// UpdateUser(models.User) (models.User, error)
 	// DeleteUser(models.User) (models.User, error)
@@ -32,6 +32,11 @@ func (r *userRepository) AddUser(user models.User) (models.User, error) {
 	return user, r.db.Create(&user).Error
 }
 
+func (r *userRepository) GetByEmail(email string) (user models.User, err error) {
+	return user, r.db.First(&user, "email = ?",email).Error
+}
+
 func (r *userRepository) GetUser(id int) (user models.User, err error) {
 	return user, r.db.First(&user, id).Error
 }
+

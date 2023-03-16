@@ -21,6 +21,7 @@ func RunAPI(address string) error {
 	userRoutes := apiRoutes.Group("/user")
 	{
 		userRoutes.POST("/register", userHandler.AddUser)
+		userRoutes.POST("/signin", userHandler.SignInUser)
 	}
 
 	return r.Run(address)

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"go_gin_mini_ecommerce/models"
 	"go_gin_mini_ecommerce/repository"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 type UserHandler interface {
 	GetUser(*gin.Context) 
 	AddUser(*gin.Context)
+	SignInUser(*gin.Context)
 }
 
 // depend on UserRepository
@@ -86,4 +88,52 @@ func (h *userHandler) AddUser(c *gin.Context) {
 		"success": true,
 		"user": user,
 	})
+}
+
+func comparePassword(dbPass, pass string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(dbPass), []byte(pass)) == nil
+}
+
+func (h *userHandler) SignInUser(c *gin.Context) {
+	// binding request input
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// get user from db
+	dbUser, err := h.repo.GetByEmail(user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "No such user found",
+		})
+		return
+	}
+
+	// compare password
+	if isTrue := comparePassword(dbUser.Password, user.Password); isTrue {
+		fmt.Println("user before", dbUser.ID)
+		token, err := GenerateToken(dbUser.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "couldn't generate token",
+			})
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": "successfully signIn",
+			"token": token,
+		})
+		return
+	}
+
+	c.JSON(http.StatusInternalServerError, gin.H{
+		"success": false,
+		"error": "Password not matched",
+	})
+	
 }
