@@ -28,9 +28,6 @@ func RunAPI(address string) error {
 	userProtectedRoutes := apiRoutes.Group("/users", middleware.AuthorizeJWT())
 	{
 		userProtectedRoutes.GET("/:id", userHandler.GetUser)
-		userProtectedRoutes.GET("/", userHandler.GetAllUser)
-		userProtectedRoutes.PUT("/:id", userHandler.UpdateUser)
-		userProtectedRoutes.DELETE("/:id", userHandler.DeleteUser)
 	}
 
 	return r.Run(address)
