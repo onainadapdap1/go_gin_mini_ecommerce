@@ -12,7 +12,7 @@ func RunAPI(address string) error {
 	// set objek UserHandler, untuk dapat 
 	// memanggil method di UserHandler
 	userHandler := handler.NewUserHandler()
-
+	productHandler := handler.NewProductHandler()
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "welcome to our mini ecommerce")
@@ -30,5 +30,10 @@ func RunAPI(address string) error {
 		userProtectedRoutes.GET("/:id", userHandler.GetUser)
 	}
 
+	productRoutes := apiRoutes.Group("/products", middleware.AuthorizeJWT())
+	{
+		productRoutes.GET("/:product", productHandler.GetProduct)
+		productRoutes.POST("/", productHandler.AddProduct)
+	}
 	return r.Run(address)
 }
